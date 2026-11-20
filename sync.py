@@ -27,6 +27,8 @@ def wards(tl, pid2):
             pid = e.get("creatorId") if e["type"] == "WARD_PLACED" else e.get("killerId")
             if not pid or pid not in pid2:  # 0 = 미니언/기타
                 continue
+            if e.get("wardType", "UNDEFINED") == "UNDEFINED":  # 요릭 묘비·일라오이 촉수·니달리/진 덫 등 스킬 오브젝트
+                continue
             team, name = pid2[pid]
             out.append({"t": e["timestamp"] // 1000, "ev": "placed" if e["type"] == "WARD_PLACED" else "killed",
                         "team": team, "by": name, "type": e.get("wardType", "UNDEFINED")})

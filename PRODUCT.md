@@ -33,7 +33,9 @@ product. We do not request custom match data for any player who has not signed i
 - lol-rso-match-v1 /matches/ids, /matches/{matchId} (custom matches, after RSO approval)
 
 ## Expected traffic
-[ ]개 그룹 × 10명 내외. 하루 1~2회 동기화. 수백 요청/일 수준.
+Launch: 1 group (~10 players). Target within 6 months: ~50 groups / ~500 opted-in players.
+Each player sync = 1 match-id list call + ~3–5 new matches (detail + timeline) ≈ 10 requests; synced 1–2×/day.
+Estimated load: ~5,000–10,000 requests/day at target, peaks well under 1 request/second. Responses are cached; already-fetched matches are never re-requested.
 
 ## Prototype / URL
 https://jy-edwardlee.github.io/lol-naejeon/ (privacy: https://jy-edwardlee.github.io/lol-naejeon/privacy.html, terms: https://jy-edwardlee.github.io/lol-naejeon/terms.html) — 현재 match-v5 + 수동 입력 기반 프로토타입 동작 중.

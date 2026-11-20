@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root{color-scheme:light;
+  --page:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--grid:#e1e0d9;--axis:#c3c2b7;
+  --ring:rgba(11,11,11,.10);--blue:#2a78d6;--red:#e34948;--orange:#eb6834;--aqua:#1baf7a;--yellow:#eda100;
+  --seq1:#cde2fb;--seq7:#104281;--good:#006300;--bad:#d03b3b;--chip:#efeee9}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){color-scheme:dark;
+  --page:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;
+  --ring:rgba(255,255,255,.10);--blue:#3987e5;--red:#e66767;--orange:#d95926;--aqua:#199e70;--yellow:#c98500;
+  --seq1:#184f95;--seq7:#cde2fb;--good:#0ca30c;--bad:#e66767;--chip:#262624}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --page:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;
+  --ring:rgba(255,255,255,.10);--blue:#3987e5;--red:#e66767;--orange:#d95926;--aqua:#199e70;--yellow:#c98500;
+  --seq1:#184f95;--seq7:#cde2fb;--good:#0ca30c;--bad:#e66767;--chip:#262624}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif}
+a{color:var(--blue)}
+.wrap{max-width:1120px;margin:0 auto;padding:16px}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:8px}
+header.top h1{font-size:22px;margin:0}
+.sub{color:var(--muted);font-size:12px}
+nav.site{font-size:13px;margin-bottom:12px}
+.banner{background:var(--surface);border:1px solid var(--ring);border-left:3px solid var(--yellow);padding:8px 12px;border-radius:8px;margin:8px 0 12px;color:var(--ink2);font-size:13px}
+.filters{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:8px 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{border:1px solid var(--ring);background:var(--surface);color:var(--ink2);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.flabel{font-size:12px;color:var(--muted)}
+select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--ring);border-radius:6px;padding:3px 6px}
+.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--grid);margin-bottom:16px;scrollbar-width:none}
+.tab{border:0;background:none;color:var(--muted);padding:8px 12px;font:inherit;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:600}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:14px 16px;min-width:0}
+.card h3{margin:0 0 2px;font-size:14px}
+.card .desc{color:var(--muted);font-size:12px;margin:0 0 10px}
+.tile .lab{color:var(--ink2);font-size:12px}
+.tile .val{font-size:26px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .note{color:var(--muted);font-size:12px}
+h2.sec{font-size:15px;margin:22px 0 8px}
+.tw{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.t th,.t td{padding:6px 8px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+.t th:first-child,.t td:first-child,.t .l{text-align:left}
+.t th{color:var(--muted);font-weight:500;font-size:12px;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+.t th[data-dir]::after{content:attr(data-dir);margin-left:3px}
+.t tbody tr:hover{background:var(--chip)}
+.ic{width:22px;height:22px;border-radius:4px;vertical-align:middle;background:var(--chip)}
+.ic.s{width:18px;height:18px}.ic.l{width:40px;height:40px;border-radius:8px}
+.who{display:inline-flex;align-items:center;gap:6px}
+.anon{color:var(--muted)}
+.w{color:var(--blue);font-weight:600}.lo{color:var(--muted)}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--axis)}.dot.win{background:var(--blue)}
+.member-hero{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--ink2);margin:4px 0 8px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+svg text{fill:var(--muted);font-size:11px}
+svg .gl{stroke:var(--grid);stroke-width:1}svg .base{stroke:var(--axis);stroke-width:1}
+.mapbox{position:relative;width:100%;max-width:440px;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--chip)}
+.mapbox img,.mapbox svg{position:absolute;inset:0;width:100%;height:100%}
+.mapbox img{filter:saturate(.35) brightness(.9);opacity:.85}
+#tip{position:fixed;pointer-events:none;z-index:9;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 8px;border-radius:6px;max-width:280px;opacity:0;transition:opacity .08s;white-space:pre-line}
+details.m{background:var(--surface);border:1px solid var(--ring);border-radius:10px;margin:6px 0}
+details.m>summary{list-style:none;cursor:pointer;padding:8px 12px;display:grid;grid-template-columns:86px 64px 1fr 1fr 70px;gap:8px;align-items:center}
+details.m>summary::-webkit-details-marker{display:none}
+details.m[open]>summary{border-bottom:1px solid var(--grid)}
+.mbody{padding:12px}
+.res{font-weight:600;font-size:12px;border-radius:4px;padding:1px 6px;text-align:center}
+.res.win{background:var(--blue);color:#fff}.res.loss{background:var(--chip);color:var(--ink2)}
+.team-line{display:flex;gap:2px;flex-wrap:wrap}
+.empty{color:var(--muted);padding:16px;text-align:center}
+.rec .val{font-size:22px}
+footer{margin-top:40px;border-top:1px solid var(--grid);color:var(--muted);font-size:12px;padding-top:8px}
+@media (max-width:640px){details.m>summary{grid-template-columns:70px 1fr 54px}details.m>summary .tl{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="site"><a href="index.html">소개</a> · <a href="stats.html">전적</a> · <a href="privacy.html">개인정보처리방침</a> · <a href="terms.html">이용약관</a></nav>
+<header class="top"><h1>__TITLE__</h1><span class="sub" id="meta"></span></header>
+<div class="banner" id="banner"></div>
+<div class="filters">
+  <span class="flabel">큐</span><div class="chips" id="fq"></div>
+  <span class="flabel">기간</span><div class="chips" id="fp"></div>
+</div>
+<div class="tabs" role="tablist" id="tabs"></div>
+<main id="view"></main>
+<footer>__APP__ isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</footer>
+</div>
+<div id="tip"></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("data").textContent);
+const V = D.dd.v, CDN = "https://ddragon.leagueoflegends.com/cdn/";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const champImg = (c, cls="") => V && c ? `<img class="ic ${cls}" loading="lazy" alt="" src="${CDN}${V}/img/champion/${encodeURIComponent(c)}.png">` : "";
+const itemImg = i => V && i ? `<img class="ic s" loading="lazy" alt="" src="${CDN}${V}/img/item/${i}.png">` : `<span class="ic s" style="display:inline-block"></span>`;
+const spellImg = s => V && s ? `<img class="ic s" loading="lazy" alt="" src="${CDN}${V}/img/spell/${s}.png">` : "";
+const runeImg = r => { const x = D.dd.rune[r]; return x ? `<img class="ic s" loading="lazy" alt="" data-tip="${esc(x.n)}" src="${CDN}img/${x.i}">` : ""; };
+const POS = {TOP:"탑",JUNGLE:"정글",MIDDLE:"미드",BOTTOM:"원딜",UTILITY:"서폿","":"-"};
+const WARD = {YELLOW_TRINKET:"노란 장신구",CONTROL_WARD:"제어 와드",SIGHT_WARD:"투명 와드",BLUE_TRINKET:"파란 장신구"};
+const OBJ = {DRAGON:"드래곤",BARON_NASHOR:"바론",RIFTHERALD:"전령",HORDE:"공허 유충",ATAKHAN:"아타칸",TOWER:"포탑",INHIBITOR:"억제기"};
+const DRAG = {FIRE_DRAGON:"화염",WATER_DRAGON:"바다",EARTH_DRAGON:"대지",AIR_DRAGON:"바람",HEXTECH_DRAGON:"마법공학",CHEMTECH_DRAGON:"화학공학",ELDER_DRAGON:"장로"};
+const mmss = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`;
+const f1 = x => x == null || isNaN(x) ? "-" : (+x).toFixed(1);
+const f2 = x => x == null || isNaN(x) ? "-" : (+x).toFixed(2);
+const pct = x => x == null || isNaN(x) ? "-" : Math.round(x*100) + "%";
+const kfmt = x => Math.abs(x) >= 1000 ? (x/1000).toFixed(1) + "k" : Math.round(x);
+const sgn = (x, f=Math.round) => x == null || isNaN(x) ? "-" : `<span class="${x>0?"up":x<0?"dn":""}">${x>0?"+":""}${f(x)}</span>`;
+const avg = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : NaN;
+const sum = a => a.reduce((s,x)=>s+x,0);
+
+/* ---------- tooltip (모든 [data-tip]) ---------- */
+const tip = $("#tip");
+document.addEventListener("mousemove", e => {
+  const el = e.target.closest?.("[data-tip]");
+  if (!el) { tip.style.opacity = 0; return; }
+  tip.textContent = el.getAttribute("data-tip"); tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect(), x = Math.min(e.clientX + 14, innerWidth - r.width - 8), y = e.clientY + 16 + r.height > innerHeight ? e.clientY - r.height - 10 : e.clientY + 16;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+});
+
+/* ---------- 필터 ---------- */
+const ALL = D.matches.slice().sort((a,b)=>b.date-a.date);
+const st = { q: "전체", p: "전체", tab: (location.hash.slice(1) || "overview"), member: null, champ: null };
+function chips(el, opts, key) {
+  el.innerHTML = opts.map(o => `<button class="chip" aria-pressed="${st[key]===o}" data-v="${esc(o)}">${esc(o)}</button>`).join("");
+  el.onclick = e => { const b = e.target.closest(".chip"); if (!b) return; st[key] = b.dataset.v; chips(el, opts, key); render(); };
+}
+const qOpts = ["전체", ...new Set(ALL.map(m => m.qn))];
+chips($("#fq"), qOpts, "q"); chips($("#fp"), ["전체","30일","7일"], "p");
+function filtered() {
+  const now = Date.now(), lim = {"30일":30,"7일":7}[st.p];
+  return ALL.filter(m => (st.q === "전체" || m.qn === st.q) && (!lim || now - m.date < lim*864e5));
+}
+const mins = m => m.dur / 60;
+const isMem = p => p && p.name;
+const won = (m, p) => m.win === p.side;
+const opp = (m, p) => m.players.find(o => o.side !== p.side && o.pos && o.pos === p.pos);
+
+/* ---------- 집계 ---------- */
+function memberRows(ms) {
+  const by = {};
+  for (const m of ms) for (const p of m.players) if (isMem(p)) (by[p.name] ??= []).push({m, p});
+  return Object.entries(by).map(([name, g]) => {
+    const det = g.filter(x => x.p.gold != null), tlx = g.filter(x => x.m.gold);
+    const wins = g.filter(x => won(x.m, x.p)).length, K = sum(g.map(x=>x.p.k)), Dd = sum(g.map(x=>x.p.d)), A = sum(g.map(x=>x.p.a));
+    const lane = det.map(x => ({x, o: opp(x.m, x.p)})).filter(y => y.o && y.x.p.g15 != null && y.o.g15 != null);
+    const champs = {}; g.forEach(x => (champs[x.p.champ] ??= {n:0,w:0,ko:x.p.champKo}, champs[x.p.champ].n++, champs[x.p.champ].w += won(x.m,x.p)));
+    const posC = {}; det.forEach(x => posC[x.p.pos] = (posC[x.p.pos]||0)+1);
+    const perMin = k => avg(det.map(x => x.p[k] / mins(x.m)));
+    return { name, g, n: g.length, w: wins, wr: wins/g.length, kda: (K+A)/Math.max(Dd,1),
+      k: K/g.length, d: Dd/g.length, a: A/g.length,
+      csm: perMin("cs"), gpm: perMin("gold"), dpm: perMin("dmg"), vpm: perMin("vision"),
+      kp: avg(det.map(x=>x.p.kp)), ds: avg(det.map(x=>x.p.dshare)), ts: avg(det.map(x=>x.p.tshare)),
+      wp: avg(det.map(x=>x.p.wp)), wk: avg(det.map(x=>x.p.wk)), cw: avg(det.map(x=>x.p.cw)), vis: avg(det.map(x=>x.p.vision)),
+      solo: avg(det.map(x=>x.p.solo)), fb: avg(det.map(x=>+!!x.p.fb)), cc: avg(det.map(x=>x.p.cc)),
+      hs: avg(det.map(x=>x.p.heal + x.p.shield)), tur: avg(det.map(x=>x.p.tur)), objd: avg(det.map(x=>x.p.obj)),
+      dead: avg(det.map(x=>x.p.dead / x.m.dur)), pings: avg(det.map(x=>x.p.pings)), plates: avg(det.map(x=>x.p.plates)),
+      cs10: avg(det.map(x=>x.p.cs10)),
+      gd15: avg(lane.map(y => y.x.p.g15 - y.o.g15)), cd15: avg(lane.filter(y=>y.x.p.c15!=null&&y.o.c15!=null).map(y => y.x.p.c15 - y.o.c15)), laneN: lane.length,
+      multi: [0,1,2,3].map(i => sum(det.map(x => x.p.multi[i]))),
+      champs: Object.entries(champs).sort((a,b)=>b[1].n-a[1].n), pos: Object.entries(posC).sort((a,b)=>b[1]-a[1]),
+      form: g.slice(0, 10).map(x => won(x.m, x.p)), tl: tlx.length };
+  }).sort((a,b) => b.wr - a.wr || b.n - a.n);
+}
+
+/* ---------- 정렬 가능한 표 ---------- */
+function table(cols, rows, sortKey, dir = -1) {
+  const id = "t" + Math.random().toString(36).slice(2, 8);
+  setTimeout(() => {
+    const el = document.getElementById(id); if (!el) return;
+    let k = sortKey, d = dir;
+    const draw = () => {
+      const r = rows.slice(); if (k) r.sort((a,b) => { const x = a[k], y = b[k]; return (x == null || isNaN(x) ? -1e18 : x) < (y == null || isNaN(y) ? -1e18 : y) ? -d : d; });
+      el.innerHTML = `<thead><tr>${cols.map(c => `<th class="${c.l?"l":""}" data-k="${c.k}" ${c.title?`data-tip="${esc(c.title)}"`:""} ${k===c.k?`data-dir="${d>0?"▲":"▼"}"`:""}>${c.h}</th>`).join("")}</tr></thead>
+        <tbody>${r.map(x => `<tr>${cols.map(c => `<td class="${c.l?"l":""}">${c.f ? c.f(x) : esc(x[c.k])}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${cols.length}" class="empty">데이터 없음</td></tr>`}</tbody>`;
+    };
+    el.onclick = e => { const th = e.target.closest("th"); if (!th || !th.dataset.k) return; if (k === th.dataset.k) d = -d; else { k = th.dataset.k; d = -1; } draw(); };
+    draw();
+  });
+  return `<div class="tw"><table class="t" id="${id}"></table></div>`;
+}
+
+/* ---------- 차트 ---------- */
+function hbars(items, {fmt = f1, color = "var(--blue)", max} = {}) {  // [{label, v, tip}]
+  if (!items.length) return `<div class="empty">데이터 없음</div>`;
+  const M = max ?? Math.max(...items.map(i => i.v), 1e-9), W = 100;
+  return `<div>${items.map(i => `<div style="display:grid;grid-template-columns:110px 1fr 54px;gap:8px;align-items:center;margin:4px 0" data-tip="${esc(i.tip || i.label + ": " + fmt(i.v))}">
+    <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink2);font-size:12px">${i.html || esc(i.label)}</div>
+    <svg viewBox="0 0 ${W} 10" preserveAspectRatio="none" style="height:12px;width:100%">${i.v > 0 ? `<rect x="0" y="1" height="8" rx="2" width="${W * i.v / M}" fill="${i.color || color}"/>` : ""}</svg>
+    <div style="font-variant-numeric:tabular-nums;text-align:right">${fmt(i.v)}</div></div>`).join("")}</div>`;
+}
+function columns(series, labels, {h = 160} = {}) {  // series: [{name,color,vals}] stacked
+  const n = labels.length, W = 600, H = h, pl = 28, pb = 18, bw = (W - pl) / n;
+  const tot = labels.map((_, i) => sum(series.map(s => s.vals[i])));
+  const M = Math.max(...tot, 1), ticks = niceTicks(M);
+  let g = ticks.map(t => { const y = H - pb - (H - pb - 6) * t / ticks.at(-1); return `<line class="gl" x1="${pl}" x2="${W}" y1="${y}" y2="${y}"/><text x="${pl-4}" y="${y+3}" text-anchor="end">${t}</text>`; }).join("");
+  labels.forEach((lab, i) => {
+    let y0 = H - pb; const x = pl + i * bw + 1.5, w = Math.max(1, bw - 3);
+    series.forEach(s => { const v = s.vals[i]; if (!v) return; const hh = (H - pb - 6) * v / ticks.at(-1); y0 -= hh;
+      g += `<rect x="${x}" y="${y0}" width="${w}" height="${Math.max(0, hh - 1)}" rx="2" fill="${s.color}"/>`; });
+    g += `<rect x="${pl + i*bw}" y="0" width="${bw}" height="${H-pb}" fill="transparent" data-tip="${esc(lab + "\n" + series.map(s => `${s.name}: ${s.vals[i]}`).join("\n"))}"/>`;
+    if (i % Math.ceil(n / 12) === 0) g += `<text x="${x + w/2}" y="${H - 4}" text-anchor="middle">${esc(lab)}</text>`;
+  });
+  g += `<line class="base" x1="${pl}" x2="${W}" y1="${H-pb}" y2="${H-pb}"/>`;
+  return legend(series) + `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg>`;
+}
+function legend(series) { return series.length > 1 ? `<div class="legend">${series.map(s => `<span><span class="sw" style="background:${s.color}"></span>${esc(s.name)}</span>`).join("")}</div>` : ""; }
+function niceTicks(M) { const step = [1,2,5,10,20,25,50,100,200,500,1000,2000,5000,10000].find(s => M / s <= 5) || Math.ceil(M/5); const t = []; for (let v = 0; v <= M + step*0.001 || t.length < 2; v += step) t.push(v); if (t.at(-1) < M) t.push(t.at(-1) + step); return t; }
+
+function goldChart(m) {  // 블루-레드 골드 차이 (한 축, 0 기준 위=블루 아래=레드)
+  const g = m.gold; if (!g || g.length < 2) return "";
+  const W = 640, H = 200, pl = 40, pr = 8, pt = 8, pb = 20, M = Math.max(1000, ...g.map(Math.abs)) * 1.1;
+  const X = i => pl + (W - pl - pr) * i / (g.length - 1), Y = v => pt + (H - pt - pb) * (M - v) / (2 * M);
+  const line = g.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+  const area = `${line}L${X(g.length-1)},${Y(0)}L${X(0)},${Y(0)}Z`, cid = "c" + m.id.replace(/\W/g, "");
+  let s = `<defs><clipPath id="${cid}a"><rect x="0" y="0" width="${W}" height="${Y(0)}"/></clipPath><clipPath id="${cid}b"><rect x="0" y="${Y(0)}" width="${W}" height="${H}"/></clipPath></defs>`;
+  [-M/1.1, -M/2.2, 0, M/2.2, M/1.1].forEach(v => { const y = Y(v); s += `<line class="${v ? "gl" : "base"}" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text x="${pl-4}" y="${y+3}" text-anchor="end">${v ? (v>0?"+":"") + kfmt(v) : "0"}</text>`; });
+  for (let i = 0; i < g.length; i += 5) s += `<text x="${X(i)}" y="${H-4}" text-anchor="middle">${i}분</text>`;
+  s += `<path d="${area}" fill="var(--blue)" opacity=".18" clip-path="url(#${cid}a)"/><path d="${area}" fill="var(--red)" opacity=".18" clip-path="url(#${cid}b)"/>`;
+  s += `<path d="${line}" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linejoin="round"/>`;
+  (m.objs || []).filter(o => o.type !== "TOWER").forEach(o => { const x = pl + (W - pl - pr) * (o.t / 60) / (g.length - 1);
+    s += `<circle cx="${x}" cy="${o.side === "blue" ? pt + 6 : H - pb - 6}" r="4" fill="${o.side === "blue" ? "var(--blue)" : "var(--red)"}" stroke="var(--surface)" stroke-width="2" data-tip="${mmss(o.t)} ${o.side === "blue" ? "블루" : "레드"} ${OBJ[o.type] || o.type}${o.sub && DRAG[o.sub] ? " (" + DRAG[o.sub] + ")" : ""}"/>`; });
+  const step = (W - pl - pr) / (g.length - 1);
+  g.forEach((v, i) => s += `<rect x="${X(i) - step/2}" y="${pt}" width="${step}" height="${H-pt-pb}" fill="transparent" data-tip="${i}분\n골드 차이 ${v > 0 ? "블루 +" : v < 0 ? "레드 +" : ""}${Math.abs(v).toLocaleString()}"/>`);
+  return `<div class="legend"><span><span class="sw" style="background:var(--blue)"></span>블루 우세</span><span><span class="sw" style="background:var(--red)"></span>레드 우세</span><span>● 오브젝트 (위: 블루, 아래: 레드)</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${s}</svg>`;
+}
+const MAPMAX = 1500;  // 좌표/10
+function mapView(layers, heat) {  // layers: [{pts:[{x,y,tip}], color, name}]; heat: [[x,y]]
+  let s = "";
+  if (heat && heat.length) {
+    const N = 30, grid = Array.from({length: N}, () => Array(N).fill(0));
+    heat.forEach(([x, y]) => { const i = Math.min(N-1, Math.max(0, Math.floor(x / MAPMAX * N))), j = Math.min(N-1, Math.max(0, Math.floor(y / MAPMAX * N))); grid[j][i]++; });
+    const M = Math.max(...grid.flat()), c = 100 / N;
+    grid.forEach((row, j) => row.forEach((v, i) => { if (!v) return;
+      s += `<rect x="${i*c}" y="${100 - (j+1)*c}" width="${c}" height="${c}" fill="var(--blue)" opacity="${(0.15 + 0.75 * v / M).toFixed(2)}" data-tip="${v}분 체류 (${Math.round(v/heat.length*100)}%)"/>`; }));
+  }
+  layers.forEach(L => L.pts.forEach(p => s += `<circle cx="${p.x / MAPMAX * 100}" cy="${100 - p.y / MAPMAX * 100}" r="1.4" fill="${L.color}" stroke="var(--surface)" stroke-width=".5" data-tip="${esc(p.tip || L.name)}"/>`));
+  return `${legend(layers.length ? layers : [])}<div class="mapbox">${V ? `<img alt="소환사의 협곡" src="${CDN}${V}/img/map/map11.png">` : ""}<svg viewBox="0 0 100 100">${s}</svg></div>`;
+}
+
+/* ---------- 공통 조각 ---------- */
+const tile = (lab, val, note = "") => `<div class="card tile"><div class="lab">${lab}</div><div class="val">${val}</div><div class="note">${note}</div></div>`;
+const card = (title, desc, body) => `<div class="card"><h3>${title}</h3>${desc ? `<p class="desc">${desc}</p>` : ""}${body}</div>`;
+const who = p => isMem(p) ? `<b>${esc(p.name.split("#")[0])}</b>` : `<span class="anon">플레이어</span>`;
+const form = f => `<span class="dots">${f.map(w => `<span class="dot ${w ? "win" : ""}" data-tip="${w ? "승" : "패"}"></span>`).join("")}</span>`;
+const champCell = (c, ko) => `<span class="who">${champImg(c)}${esc(ko || c)}</span>`;
+
+/* ---------- 탭 ---------- */
+const TABS = [["overview","개요"],["member","멤버"],["champ","챔피언"],["duo","조합·맞대결"],["vision","와드·시야"],["map","맵"],["obj","오브젝트"],["records","기록실"],["games","경기"]];
+function tabs() {
+  $("#tabs").innerHTML = TABS.map(([k, n]) => `<button class="tab" role="tab" aria-selected="${st.tab === k}" data-k="${k}">${n}</button>`).join("");
+  $("#tabs").onclick = e => { const b = e.target.closest(".tab"); if (!b) return; st.tab = b.dataset.k; history.replaceState(null, "", "#" + st.tab); render(); };
+}
+
+const V_ = {};
+V_.overview = ms => {
+  const R = memberRows(ms), det = ms.filter(m => m.teams);
+  const blueW = det.filter(m => m.win === "blue").length;
+  return `<div class="grid g4">${tile("경기", ms.length, `${new Set(ms.map(m=>m.qn)).size}개 큐`)}${tile("멤버", R.length, "로그인·동의한 플레이어")}
+    ${tile("평균 경기 시간", ms.length ? mmss(avg(ms.map(m=>m.dur))) : "-", "")}${tile("블루 진영 승률", det.length ? pct(blueW/det.length) : "-", `${det.length}판 중 ${blueW}승`)}</div>
+    <h2 class="sec">멤버 순위</h2><div class="card">${table([
+      {k:"name",h:"멤버",l:1,f:r=>`<b>${esc(r.name.split("#")[0])}</b> <span class="sub">#${esc(r.name.split("#")[1]||"")}</span>`},
+      {k:"n",h:"판수"},{k:"wr",h:"승률",f:r=>`${pct(r.wr)} <span class="sub">${r.w}-${r.n-r.w}</span>`},
+      {k:"kda",h:"KDA",f:r=>`${f2(r.kda)} <span class="sub">${f1(r.k)}/${f1(r.d)}/${f1(r.a)}</span>`},
+      {k:"kp",h:"킬관여",f:r=>pct(r.kp)},{k:"dpm",h:"딜/분",f:r=>Math.round(r.dpm)||"-"},{k:"csm",h:"CS/분",f:r=>f1(r.csm)},{k:"vpm",h:"시야/분",f:r=>f2(r.vpm)},
+      {k:"champs",h:"모스트",l:1,f:r=>r.champs.slice(0,3).map(([c,x])=>`<span data-tip="${esc(x.ko)} ${x.n}판 ${pct(x.w/x.n)}">${champImg(c)}</span>`).join(" ")},
+      {k:"form",h:"최근 10판",l:1,f:r=>form(r.form)}], R, "wr")}</div>
+    <h2 class="sec">한눈에 보기</h2><div class="grid g2">
+      ${card("승률", "판수가 적으면 변동이 큽니다", hbars(R.map(r=>({label:r.name.split("#")[0], v:r.wr, tip:`${r.name}\n${r.w}승 ${r.n-r.w}패`})), {fmt:pct, max:1}))}
+      ${card("분당 딜량", "챔피언에게 준 피해 ÷ 경기 시간", hbars(R.map(r=>({label:r.name.split("#")[0], v:r.dpm||0})), {fmt:x=>Math.round(x)}))}</div>`;
+};
+
+V_.member = ms => {
+  const R = memberRows(ms); if (!R.length) return `<div class="empty">멤버 데이터 없음</div>`;
+  const r = R.find(x => x.name === st.member) || R[0]; st.member = r.name;
+  const roleRows = {}; r.g.forEach(x => { const k = x.p.pos || ""; (roleRows[k] ??= {n:0,w:0}); roleRows[k].n++; roleRows[k].w += won(x.m, x.p); });
+  const trend = r.g.slice().reverse();
+  return `<div class="member-hero"><select id="msel">${R.map(x=>`<option ${x.name===r.name?"selected":""}>${esc(x.name)}</option>`).join("")}</select>
+      <span class="sub">${r.n}판 · 최근 10판 ${form(r.form)}</span></div>
+    <div class="grid g4">${tile("승률", pct(r.wr), `${r.w}승 ${r.n-r.w}패`)}${tile("KDA", f2(r.kda), `${f1(r.k)} / ${f1(r.d)} / ${f1(r.a)}`)}
+      ${tile("킬 관여", pct(r.kp), "팀 킬 중 내가 관여한 비율")}${tile("딜 비중", pct(r.ds), "팀 챔피언 딜 중 내 몫")}
+      ${tile("분당 CS", f1(r.csm), `10분 CS ${f1(r.cs10)}`)}${tile("분당 골드", Math.round(r.gpm)||"-", "")}
+      ${tile("15분 골드 차이", r.laneN ? sgn(r.gd15) : "-", r.laneN ? `같은 라인 상대 기준 · ${r.laneN}판` : "타임라인 필요")}${tile("15분 CS 차이", r.laneN ? sgn(r.cd15, f1) : "-", "")}
+      ${tile("분당 시야 점수", f2(r.vpm), `와드 ${f1(r.wp)} · 제어 ${f1(r.cw)} · 제거 ${f1(r.wk)} /판`)}${tile("받은 피해 비중", pct(r.ts), "탱킹 지표")}
+      ${tile("솔로킬", f1(r.solo), "판당")}${tile("첫 킬 관여", pct(r.fb), "퍼블 킬·어시")}
+      ${tile("CC 시간", f1(r.cc) + "초", "판당 적에게 건 CC")}${tile("힐·실드", kfmt(r.hs||0), "판당 아군에게")}
+      ${tile("포탑 피해", kfmt(r.tur||0), `판당 · 포탑 골드 ${f1(r.plates)}개`)}${tile("죽어있던 시간", pct(r.dead), "경기 시간 대비")}</div>
+    <div class="grid g2" style="margin-top:12px">
+      ${card("포지션별 승률", "", hbars(Object.entries(roleRows).sort((a,b)=>b[1].n-a[1].n).map(([k,x])=>({label:`${POS[k]||k} (${x.n}판)`, v:x.w/x.n, tip:`${POS[k]||k}: ${x.w}승 ${x.n-x.w}패`})), {fmt:pct, max:1}))}
+      ${card("멀티킬", "누적", hbars(["더블","트리플","쿼드라","펜타"].map((l,i)=>({label:l, v:r.multi[i]})), {fmt:x=>x}))}
+      ${card("경기별 KDA 흐름", "오래된 경기 → 최근 경기", columns([{name:"승리", color:"var(--blue)", vals:trend.map(x=>won(x.m,x.p)?+(((x.p.k+x.p.a)/Math.max(1,x.p.d)).toFixed(1)):0)}, {name:"패배", color:"var(--axis)", vals:trend.map(x=>won(x.m,x.p)?0:+(((x.p.k+x.p.a)/Math.max(1,x.p.d)).toFixed(1)))}], trend.map((x,i)=>`${i+1}. ${x.p.champKo}`)))}
+      ${card("경기별 분당 딜량", "", hbars(trend.slice(-12).reverse().map(x=>({html:`${champImg(x.p.champ,"s")} ${new Date(x.m.date).toLocaleDateString("ko",{month:"numeric",day:"numeric"})}`, label:x.p.champKo, v:x.p.dmg ? x.p.dmg/mins(x.m) : 0, color: won(x.m,x.p) ? "var(--blue)" : "var(--axis)", tip:`${x.p.champKo} · ${won(x.m,x.p)?"승":"패"} · ${x.p.k}/${x.p.d}/${x.p.a}`})), {fmt:x=>Math.round(x)}))}
+    </div>
+    <h2 class="sec">챔피언</h2><div class="card">${champTable(r.g)}</div>`;
+};
+function champTable(g) {
+  const by = {}; g.forEach(x => (by[x.p.champ] ??= []).push(x));
+  const rows = Object.entries(by).map(([c, a]) => { const det = a.filter(x=>x.p.gold!=null);
+    return {c, ko:a[0].p.champKo, n:a.length, w:a.filter(x=>won(x.m,x.p)).length, wr:a.filter(x=>won(x.m,x.p)).length/a.length,
+      kda:(sum(a.map(x=>x.p.k))+sum(a.map(x=>x.p.a)))/Math.max(1,sum(a.map(x=>x.p.d))), csm:avg(det.map(x=>x.p.cs/mins(x.m))), dpm:avg(det.map(x=>x.p.dmg/mins(x.m))), kp:avg(det.map(x=>x.p.kp)),
+      who:[...new Set(a.map(x=>x.p.name).filter(Boolean))].length}; });
+  return table([{k:"ko",h:"챔피언",l:1,f:r=>champCell(r.c,r.ko)},{k:"n",h:"판수"},{k:"wr",h:"승률",f:r=>`${pct(r.wr)} <span class="sub">${r.w}-${r.n-r.w}</span>`},
+    {k:"kda",h:"KDA",f:r=>f2(r.kda)},{k:"kp",h:"킬관여",f:r=>pct(r.kp)},{k:"csm",h:"CS/분",f:r=>f1(r.csm)},{k:"dpm",h:"딜/분",f:r=>Math.round(r.dpm)||"-"}], rows, "n");
+}
+
+V_.champ = ms => {
+  const g = []; ms.forEach(m => m.players.forEach(p => isMem(p) && g.push({m, p})));
+  const picks = {}, bans = {}; ms.forEach(m => m.players.forEach(p => (picks[p.champ] ??= {n:0,ko:p.champKo,w:0}, picks[p.champ].n++, picks[p.champ].w += won(m,p))));
+  ms.forEach(m => m.teams && ["blue","red"].forEach(s => m.teams[s].bans.forEach(id => { const c = D.dd.byKey[id]; if (c) bans[c] = (bans[c]||0)+1; })));
+  const top = (o, f) => Object.entries(o).sort((a,b)=>f(b[1])-f(a[1])).slice(0, 10);
+  return `<div class="card"><h3>멤버 챔피언 성적</h3><p class="desc">멤버가 플레이한 챔피언 전체</p>${champTable(g)}</div>
+    <div class="grid g2" style="margin-top:12px">
+    ${card("많이 나온 챔피언", "경기에 등장한 10명 전체 기준 · 막대 = 판수", hbars(top(picks, x=>x.n).map(([c,x])=>({html:`${champImg(c,"s")} ${esc(x.ko)}`, label:x.ko, v:x.n, tip:`${x.ko}: ${x.n}판, 승률 ${pct(x.w/x.n)}`})), {fmt:x=>x}))}
+    ${card("많이 밴된 챔피언", "양팀 밴 합계", Object.keys(bans).length ? hbars(top(bans, x=>x).map(([c,n])=>({html:`${champImg(c,"s")} ${esc(c)}`, label:c, v:n})), {fmt:x=>x, color:"var(--red)"}) : `<div class="empty">밴 데이터 없음 (내전 블라인드픽 등)</div>`)}</div>`;
+};
+
+V_.duo = ms => {
+  const duo = {}, vs = {};
+  ms.forEach(m => { const mem = m.players.filter(isMem);
+    for (let i = 0; i < mem.length; i++) for (let j = i+1; j < mem.length; j++) { const a = mem[i], b = mem[j];
+      if (a.side === b.side) { const k = [a.name, b.name].sort().join(" + "); (duo[k] ??= {n:0,w:0}); duo[k].n++; duo[k].w += won(m,a); }
+      else { [[a,b],[b,a]].forEach(([x,y]) => { const k = x.name + "|" + y.name; (vs[k] ??= {n:0,w:0}); vs[k].n++; vs[k].w += won(m,x); }); } } });
+  const names = [...new Set(ms.flatMap(m => m.players.filter(isMem).map(p => p.name)))].sort();
+  const short = n => esc(n.split("#")[0]);
+  const matrix = names.length < 2 ? `<div class="empty">멤버 2명 이상이 상대 팀으로 만난 경기가 필요합니다</div>` :
+    `<div class="tw"><table class="t"><thead><tr><th class="l">행 기준 승률 →</th>${names.map(n=>`<th>${short(n)}</th>`).join("")}</tr></thead><tbody>${names.map(a=>`<tr><td class="l"><b>${short(a)}</b></td>${names.map(b=>{ const x = vs[a+"|"+b]; return a===b ? `<td class="anon">-</td>` : x ? `<td data-tip="${short(a)} vs ${short(b)}: ${x.w}승 ${x.n-x.w}패"><span class="${x.w*2>x.n?"up":x.w*2<x.n?"dn":""}">${pct(x.w/x.n)}</span> <span class="sub">${x.n}</span></td>` : `<td class="anon">·</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return `${card("같은 팀 조합 승률", "멤버 둘이 같은 팀이었던 경기", table([{k:"k",h:"조합",l:1,f:r=>r.k.split(" + ").map(short).join(" + ")},{k:"n",h:"판수"},{k:"wr",h:"승률",f:r=>`${pct(r.wr)} <span class="sub">${r.w}-${r.n-r.w}</span>`}],
+      Object.entries(duo).map(([k,x])=>({k, n:x.n, w:x.w, wr:x.w/x.n})), "n"))}
+    <div style="margin-top:12px">${card("맞대결 전적", "행의 멤버가 열의 멤버를 상대 팀으로 만났을 때 승률 · 작은 숫자 = 판수", matrix)}</div>`;
+};
+
+V_.vision = ms => {
+  const R = memberRows(ms).filter(r => r.tl);
+  const r = R.find(x => x.name === st.member) || R[0];
+  let hist = "", typ = "", log = "";
+  if (r) { st.member = r.name;
+    const bins = 12, lab = Array.from({length: bins}, (_, i) => `${i*3}-${i*3+3}분`); lab[bins-1] = `${(bins-1)*3}분+`;
+    const pl = Array(bins).fill(0), kl = Array(bins).fill(0), types = {};
+    r.g.forEach(({m, p}) => (m.wards || []).forEach(w => { const pp = m.players[w.by]; if (!pp || pp.name !== r.name) return;
+      const b = Math.min(bins-1, Math.floor(w.t / 180)); if (w.ev === "placed") { pl[b]++; types[w.type] = (types[w.type]||0)+1; } else kl[b]++; }));
+    const n = r.tl;
+    hist = columns([{name:"설치", color:"var(--blue)", vals:pl.map(v=>+(v/n).toFixed(1))}, {name:"제거", color:"var(--orange)", vals:kl.map(v=>+(v/n).toFixed(1))}], lab);
+    const T = sum(Object.values(types));
+    typ = hbars(Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:WARD[k]||k, v:v/T, tip:`${WARD[k]||k}: ${v}개 (${n}판)`})), {fmt:pct, max:1});
+  }
+  return `<div class="card"><h3>멤버별 와드·시야</h3><p class="desc">판당 평균 · Riot 타임라인 기준. 와드 <b>위치</b>와 제거 이벤트가 <b>어느 와드</b>인지는 API에 없습니다 (요릭 묘비 등 스킬 오브젝트 제외).</p>${table([
+      {k:"name",h:"멤버",l:1,f:r=>`<b>${esc(r.name.split("#")[0])}</b>`},{k:"vis",h:"시야 점수",f:r=>f1(r.vis)},{k:"vpm",h:"분당",f:r=>f2(r.vpm)},
+      {k:"wp",h:"와드 설치",f:r=>f1(r.wp)},{k:"cw",h:"제어 와드",f:r=>f1(r.cw)},{k:"wk",h:"와드 제거",f:r=>f1(r.wk)},{k:"tl",h:"타임라인 판수"}], R, "vpm")}</div>
+    ${r ? `<div class="member-hero" style="margin-top:16px"><select id="msel">${R.map(x=>`<option ${x.name===r.name?"selected":""}>${esc(x.name)}</option>`).join("")}</select></div>
+    <div class="grid g2">${card("시간대별 와드 (판당)", "3분 단위 · 설치와 제거", hist)}${card("설치한 와드 종류", "", typ)}</div>` : ""}`;
+};
+
+V_.map = ms => {
+  const R = memberRows(ms).filter(r => r.tl); if (!R.length) return `<div class="empty">타임라인 데이터 없음</div>`;
+  const r = R.find(x => x.name === st.member) || R[0]; st.member = r.name;
+  const kills = [], deaths = [], assists = [], heat = [], early = [];
+  r.g.forEach(({m, p}) => { const i = m.players.indexOf(p);
+    (m.kills || []).forEach(k => { const tip = `${mmss(k.t)} · ${m.players[k.k]?.champKo || "?"} → ${m.players[k.v]?.champKo || "?"}`;
+      if (k.k === i) kills.push({...k, tip: "킬 " + tip}); else if (k.v === i) deaths.push({...k, tip: "데스 " + tip}); else if (k.as.includes(i)) assists.push({...k, tip: "어시 " + tip}); });
+    (m.track?.[i] || []).forEach(([x, y], t) => { if (t > 0) { heat.push([x, y]); if (t <= 14) early.push([x, y]); } }); });
+  const mode = st.mapMode || "kd";
+  const body = mode === "kd" ? mapView([{name:`킬 ${kills.length}`, color:"var(--blue)", pts:kills}, {name:`데스 ${deaths.length}`, color:"var(--red)", pts:deaths}, {name:`어시스트 ${assists.length}`, color:"var(--aqua)", pts:assists}])
+    : mapView([], mode === "early" ? early : heat);
+  return `<div class="member-hero"><select id="msel">${R.map(x=>`<option ${x.name===r.name?"selected":""}>${esc(x.name)}</option>`).join("")}</select>
+    <div class="chips" id="mm">${[["kd","킬·데스 위치"],["heat","전체 동선"],["early","14분 전 동선"]].map(([k,n])=>`<button class="chip" aria-pressed="${mode===k}" data-v="${k}">${n}</button>`).join("")}</div></div>
+    <div class="grid g2">${card(mode === "kd" ? "킬·데스·어시스트 위치" : "동선 히트맵", mode === "kd" ? `${r.tl}판 · 점에 마우스를 올리면 시간과 챔피언` : `1분마다 기록된 위치 · 진할수록 오래 머문 곳`, body)}
+    ${card("데스 시간대", "언제 많이 죽는지 (3분 단위, 누적)", columns([{name:"데스", color:"var(--red)", vals:Array.from({length:12},(_,b)=>deaths.filter(d=>Math.min(11,Math.floor(d.t/180))===b).length)}, {name:"킬", color:"var(--blue)", vals:Array.from({length:12},(_,b)=>kills.filter(d=>Math.min(11,Math.floor(d.t/180))===b).length)}], Array.from({length:12},(_,i)=>i===11?"33분+":`${i*3}분`)))}</div>`;
+};
+
+V_.obj = ms => {
+  const det = ms.filter(m => m.teams);
+  const keys = [["champion","첫 킬"],["tower","첫 포탑"],["dragon","첫 드래곤"],["horde","첫 공허 유충"],["riftHerald","첫 전령"],["baron","첫 바론"],["inhibitor","첫 억제기"],["atakhan","첫 아타칸"]];
+  const fr = keys.map(([k, n]) => { const a = det.filter(m => m.teams.blue.first[k] || m.teams.red.first[k]); const w = a.filter(m => m.teams[m.win].first[k]).length; return {label:n, v:a.length ? w/a.length : 0, n:a.length, w}; }).filter(x => x.n);
+  const firstT = (type) => avg(det.map(m => (m.objs||[]).find(o => o.type === type)?.t).filter(x => x != null));
+  const drag = {}; det.forEach(m => (m.objs||[]).filter(o=>o.type==="DRAGON").forEach(o => drag[o.sub] = (drag[o.sub]||0)+1));
+  // 멤버 팀 기준 (멤버가 속한 팀)
+  const memSide = det.map(m => ({m, s: m.players.find(isMem)?.side})).filter(x => x.s);
+  const sideW = s => { const a = memSide.filter(x => x.s === s); return {n:a.length, w:a.filter(x => x.m.win === s).length}; };
+  const b = sideW("blue"), r = sideW("red");
+  const ob = k => avg(memSide.map(x => x.m.teams[x.s].kills[k]));
+  return `<div class="grid g4">${tile("첫 드래곤 평균", isNaN(firstT("DRAGON")) ? "-" : mmss(firstT("DRAGON")), "")}${tile("첫 포탑 평균", isNaN(firstT("TOWER")) ? "-" : mmss(firstT("TOWER")), "")}
+      ${tile("멤버 블루 진영", b.n ? pct(b.w/b.n) : "-", `${b.n}판`)}${tile("멤버 레드 진영", r.n ? pct(r.w/r.n) : "-", `${r.n}판`)}</div>
+    <div class="grid g2" style="margin-top:12px">
+    ${card("먼저 가져간 팀의 승률", "그 오브젝트를 먼저 챙긴 팀이 이긴 비율 (전체 경기)", hbars(fr.map(x=>({label:x.label, v:x.v, tip:`${x.label}: ${x.n}판 중 ${x.w}판 승리`})), {fmt:pct, max:1}))}
+    ${card("멤버 팀의 판당 오브젝트", "멤버가 속한 팀 기준 평균", hbars([["dragon","드래곤"],["tower","포탑"],["horde","공허 유충"],["riftHerald","전령"],["baron","바론"],["inhibitor","억제기"]].map(([k,n])=>({label:n, v:ob(k)||0})), {fmt:f1}))}
+    ${card("드래곤 종류", "전체 경기에서 처치된 드래곤", hbars(Object.entries(drag).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:DRAG[k]||k, v})), {fmt:x=>x}))}</div>`;
+};
+
+V_.records = ms => {
+  const all = []; ms.forEach(m => m.players.forEach(p => isMem(p) && p.gold != null && all.push({m, p})));
+  if (!all.length) return `<div class="empty">데이터 없음</div>`;
+  const best = (f, fmt, lab, desc) => { const x = all.reduce((a, b) => f(b) > f(a) ? b : a); return {lab, desc, v: fmt(f(x)), x}; };
+  const recs = [
+    best(x=>x.p.k, v=>v+"킬", "최다 킬"), best(x=>(x.p.k+x.p.a)/Math.max(1,x.p.d), f2, "최고 KDA"),
+    best(x=>x.p.dmg, kfmt, "최다 딜"), best(x=>x.p.dmg/mins(x.m), v=>Math.round(v), "최고 분당 딜"),
+    best(x=>x.p.cs/mins(x.m), f1, "최고 분당 CS"), best(x=>x.p.vision, v=>v, "최고 시야 점수"),
+    best(x=>x.p.wp, v=>v+"개", "최다 와드"), best(x=>x.p.taken, kfmt, "최다 받은 피해"),
+    best(x=>x.p.spree, v=>v+"연속", "최장 연속 킬"), best(x=>x.p.solo, v=>v+"회", "최다 솔로킬"),
+    best(x=>x.p.heal+x.p.shield, kfmt, "최다 힐·실드"), best(x=>x.p.d, v=>v+"데스", "최다 데스 (불명예)")];
+  const comeback = ms.filter(m => m.gold).map(m => { const s = m.win === "blue" ? 1 : -1; return {m, def: Math.max(0, ...m.gold.map(v => -v * s))}; }).sort((a,b)=>b.def-a.def)[0];
+  const longest = ms.reduce((a,b)=>b.dur>a.dur?b:a), shortest = ms.reduce((a,b)=>b.dur<a.dur?b:a);
+  const d = m => new Date(m.date).toLocaleDateString("ko",{month:"numeric",day:"numeric"});
+  return `<div class="grid g4">${recs.map(r => `<div class="card tile rec"><div class="lab">${r.lab}</div><div class="val">${r.v}</div>
+      <div class="note"><span class="who">${champImg(r.x.p.champ,"s")} ${who(r.x.p)}</span> · ${d(r.x.m)} · ${won(r.x.m,r.x.p)?"승":"패"}</div></div>`).join("")}
+    ${tile("최장 경기", mmss(longest.dur), `${d(longest)} · ${longest.qn}`)}${tile("최단 경기", mmss(shortest.dur), `${d(shortest)} · ${shortest.qn}`)}
+    ${comeback && comeback.def > 0 ? tile("최대 역전", "-" + kfmt(comeback.def), `골드 열세를 뒤집고 승리 · ${d(comeback.m)}`) : ""}
+    ${tile("펜타킬", sum(all.map(x=>x.p.multi[3])), `쿼드라 ${sum(all.map(x=>x.p.multi[2]))} · 트리플 ${sum(all.map(x=>x.p.multi[1]))}`)}</div>`;
+};
+
+V_.games = ms => ms.length ? ms.map(m => {
+  const me = m.players.find(isMem), w = me ? won(m, me) : null;
+  const line = s => `<span class="team-line">${m.players.filter(p=>p.side===s).map(p=>`<span data-tip="${esc((p.name?p.name.split("#")[0]+" · ":"")+p.champKo+" "+p.k+"/"+p.d+"/"+p.a)}" style="${isMem(p)?"outline:2px solid var(--yellow);border-radius:5px":""}">${champImg(p.champ,"s")}</span>`).join("")}</span>`;
+  return `<details class="m" data-id="${esc(m.id)}"><summary>
+    <span><b>${new Date(m.date).toLocaleDateString("ko",{month:"numeric",day:"numeric"})}</b> <span class="sub">${new Date(m.date).toLocaleTimeString("ko",{hour:"2-digit",minute:"2-digit"})}</span><br><span class="sub">${esc(m.qn)} · ${mmss(m.dur)}</span></span>
+    ${w == null ? "<span></span>" : `<span class="res ${w?"win":"loss"}">${w?"승리":"패배"}</span>`}
+    <span class="tl">${line("blue")}</span><span class="tl">${line("red")}</span>
+    <span class="sub" style="text-align:right">${me ? `${champImg(me.champ,"s")} ${me.k}/${me.d}/${me.a}` : ""}</span></summary><div class="mbody"></div></details>`; }).join("") : `<div class="empty">경기 없음</div>`;
+
+function matchDetail(m) {
+  const tot = s => m.players.filter(p=>p.side===s);
+  const kills = s => sum(tot(s).map(p=>p.k)), gold = s => sum(tot(s).map(p=>p.gold||0));
+  const maxDmg = Math.max(...m.players.map(p=>p.dmg||0), 1);
+  const sb = s => `<div class="tw"><table class="t"><thead><tr><th class="l">${s==="blue"?"블루":"레드"} ${m.win===s?"(승)":""} · 킬 ${kills(s)} · 골드 ${kfmt(gold(s))}</th><th>KDA</th><th>CS</th><th>딜</th><th>시야</th><th class="l">아이템</th></tr></thead><tbody>
+    ${tot(s).map(p=>`<tr><td class="l"><span class="who">${champImg(p.champ)}${p.spells?.map(spellImg).join("")||""}${p.rune?runeImg(p.rune):""} ${who(p)} <span class="sub">${POS[p.pos]||""}</span></span></td>
+      <td>${p.k}/${p.d}/${p.a}</td><td>${p.cs??"-"}</td>
+      <td><span data-tip="${(p.dmg||0).toLocaleString()} (팀의 ${pct(p.dshare)})" style="display:inline-flex;align-items:center;gap:4px">${kfmt(p.dmg||0)}<svg viewBox="0 0 40 6" style="width:40px;height:6px"><rect width="${40*(p.dmg||0)/maxDmg}" height="6" rx="2" fill="${s==="blue"?"var(--blue)":"var(--red)"}"/></svg></span></td>
+      <td>${p.vision??"-"}</td><td class="l">${(p.items||[]).map(itemImg).join("")}</td></tr>`).join("")}</tbody></table></div>`;
+  const wl = (m.wards||[]).map(w => { const p = m.players[w.by]; return `<tr><td>${mmss(w.t)}</td><td class="l"><span class="sw" style="background:${w.side==="blue"?"var(--blue)":"var(--red)"}"></span>${w.side==="blue"?"블루":"레드"}</td><td class="l"><span class="who">${p?champImg(p.champ,"s"):""} ${p?who(p):"?"}</span></td><td class="l">${w.ev==="placed"?"설치":"<b>제거</b>"}</td><td class="l">${WARD[w.type]||w.type}</td></tr>`; }).join("");
+  const obj = (m.objs||[]).map(o => `<tr><td>${mmss(o.t)}</td><td class="l"><span class="sw" style="background:${o.side==="blue"?"var(--blue)":"var(--red)"}"></span>${o.side==="blue"?"블루":"레드"}</td><td class="l">${OBJ[o.type]||o.type}${o.sub&&DRAG[o.sub]?" · "+DRAG[o.sub]:""}</td><td class="l">${m.players[o.by]?who(m.players[o.by]):""}</td></tr>`).join("");
+  return `${sb("blue")}${sb("red")}
+    ${m.gold ? `<div class="grid g2" style="margin-top:12px">${card("골드 차이", "블루 − 레드, 분 단위", goldChart(m))}${card("킬 위치", `${m.kills.length}킬`, mapView([{name:"블루 킬", color:"var(--blue)", pts:m.kills.filter(k=>m.players[k.k]?.side==="blue").map(k=>({...k, tip:`${mmss(k.t)} ${m.players[k.k]?.champKo} → ${m.players[k.v]?.champKo}`}))}, {name:"레드 킬", color:"var(--red)", pts:m.kills.filter(k=>m.players[k.k]?.side==="red").map(k=>({...k, tip:`${mmss(k.t)} ${m.players[k.k]?.champKo} → ${m.players[k.v]?.champKo}`}))}]))}</div>
+    <div class="grid g2" style="margin-top:12px">${card("오브젝트", "", `<div class="tw" style="max-height:320px;overflow:auto"><table class="t"><tbody>${obj || `<tr><td class="empty">없음</td></tr>`}</tbody></table></div>`)}
+      ${card("와드 기록", `블루 설치 ${(m.wards||[]).filter(w=>w.side==="blue"&&w.ev==="placed").length} / 제거 ${(m.wards||[]).filter(w=>w.side==="blue"&&w.ev!=="placed").length} · 레드 설치 ${(m.wards||[]).filter(w=>w.side==="red"&&w.ev==="placed").length} / 제거 ${(m.wards||[]).filter(w=>w.side==="red"&&w.ev!=="placed").length}`, `<div class="tw" style="max-height:320px;overflow:auto"><table class="t"><tbody>${wl || `<tr><td class="empty">없음</td></tr>`}</tbody></table></div>`)}</div>` : `<p class="sub">수동 입력 경기라 상세 타임라인이 없습니다.</p>`}`;
+}
+
+/* ---------- 렌더 ---------- */
+function render() {
+  tabs();
+  const ms = filtered();
+  $("#view").innerHTML = (V_[st.tab] || V_.overview)(ms);
+  const sel = $("#msel"); if (sel) sel.onchange = () => { st.member = sel.value; render(); };
+  const mm = $("#mm"); if (mm) mm.onclick = e => { const b = e.target.closest(".chip"); if (b) { st.mapMode = b.dataset.v; render(); } };
+  document.querySelectorAll("details.m").forEach(d => d.addEventListener("toggle", () => { const b = d.querySelector(".mbody"); if (d.open && !b.innerHTML) b.innerHTML = matchDetail(ALL.find(m => m.id === d.dataset.id)); }));
+}
+const last = ALL[0]?.date;
+$("#meta").textContent = `경기 ${ALL.length}건 · 갱신 __UPDATED__`;
+const custom = ALL.filter(m => m.q === 0).length;
+$("#banner").innerHTML = custom ? `내전 ${custom}판 포함. 나머지는 함께 뛴 일반·랭크 게임입니다.` :
+  `<b>데모 데이터</b> — 지금은 일반·랭크 게임으로 기능을 보여주고 있습니다. 사용자 설정 게임(내전)은 Riot Production 승인 후 RSO 로그인으로 자동 수집됩니다.`;
+render();
+</script>
+</body>
+</html>

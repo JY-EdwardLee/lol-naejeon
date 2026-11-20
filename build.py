@@ -149,6 +149,15 @@ Stats are provided as-is. Not endorsed by Riot Games.</small></p>"""
 
 out = os.path.join(HERE, "docs")
 os.makedirs(out, exist_ok=True)
-for fn, t, b in [("index.html", APP, landing), ("stats.html", title, stats), ("privacy.html", "개인정보처리방침", privacy), ("terms.html", "이용약관", terms)]:
+for fn, t, b in [("index.html", APP, landing), ("privacy.html", "개인정보처리방침", privacy), ("terms.html", "이용약관", terms)]:
     open(os.path.join(out, fn), "w").write(shell(t, b))
+
+# 전적 페이지: web/stats.html 템플릿 + 데이터 인라인 (file:// 로 열어도 동작)
+import stats_data
+site = stats_data.build(matches)
+js = json.dumps(site, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+tpl = open(os.path.join(HERE, "web", "stats.html")).read()
+for k, v in {"__TITLE__": e(title), "__APP__": APP, "__UPDATED__": f"{datetime.datetime.now():%Y-%m-%d %H:%M}"}.items():
+    tpl = tpl.replace(k, v)
+open(os.path.join(out, "stats.html"), "w").write(tpl.replace("__DATA__", js))
 print(f"docs/ ({len(ps)} members, {len(matches)} matches)")

@@ -7,7 +7,7 @@ import json, os, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "data", "cache")
 QUEUE = {0: "내전", 400: "일반", 420: "솔로랭크", 430: "일반", 440: "자유랭크", 450: "칼바람", 490: "빠른대전",
-         700: "격전", 710: "일반", 1700: "아레나", 1900: "URF"}
+         700: "격전", 710: "일반(710)", 1700: "아레나", 1900: "URF"}
 
 def ddragon():
     """Data Dragon 버전·챔피언 키 보정·아이템/스펠/룬 아이콘 매핑 (Riot 공식 공개 CDN)."""

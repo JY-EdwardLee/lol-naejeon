@@ -112,6 +112,7 @@ const POS = {TOP:"탑",JUNGLE:"정글",MIDDLE:"미드",BOTTOM:"원딜",UTILITY:"
 const WARD = {YELLOW_TRINKET:"노란 장신구",CONTROL_WARD:"제어 와드",SIGHT_WARD:"투명 와드",BLUE_TRINKET:"파란 장신구"};
 const OBJ = {DRAGON:"드래곤",BARON_NASHOR:"바론",RIFTHERALD:"전령",HORDE:"공허 유충",ATAKHAN:"아타칸",TOWER:"포탑",INHIBITOR:"억제기"};
 const DRAG = {FIRE_DRAGON:"화염",WATER_DRAGON:"바다",EARTH_DRAGON:"대지",AIR_DRAGON:"바람",HEXTECH_DRAGON:"마법공학",CHEMTECH_DRAGON:"화학공학",ELDER_DRAGON:"장로"};
+const dstr = ts => { const x = new Date(ts); return x.toLocaleDateString("ko", x.getFullYear() === new Date().getFullYear() ? {month:"numeric",day:"numeric"} : {year:"2-digit",month:"numeric",day:"numeric"}); };
 const mmss = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`;
 const f1 = x => x == null || isNaN(x) ? "-" : (+x).toFixed(1);
 const f2 = x => x == null || isNaN(x) ? "-" : (+x).toFixed(2);
@@ -172,7 +173,7 @@ function memberRows(ms) {
       gd15: avg(lane.map(y => y.x.p.g15 - y.o.g15)), cd15: avg(lane.filter(y=>y.x.p.c15!=null&&y.o.c15!=null).map(y => y.x.p.c15 - y.o.c15)), laneN: lane.length,
       multi: [0,1,2,3].map(i => sum(det.map(x => x.p.multi[i]))),
       champs: Object.entries(champs).sort((a,b)=>b[1].n-a[1].n), pos: Object.entries(posC).sort((a,b)=>b[1]-a[1]),
-      form: g.slice(0, 10).map(x => won(x.m, x.p)), tl: tlx.length };
+      form: g.slice(0, 10).map(x => ({w: won(x.m, x.p), tip: `${dstr(x.m.date)} ${x.p.champKo} ${x.p.k}/${x.p.d}/${x.p.a}`})), tl: tlx.length };
   }).sort((a,b) => b.wr - a.wr || b.n - a.n);
 }
 
@@ -255,7 +256,7 @@ function mapView(layers, heat) {  // layers: [{pts:[{x,y,tip}], color, name}]; h
 const tile = (lab, val, note = "") => `<div class="card tile"><div class="lab">${lab}</div><div class="val">${val}</div><div class="note">${note}</div></div>`;
 const card = (title, desc, body) => `<div class="card"><h3>${title}</h3>${desc ? `<p class="desc">${desc}</p>` : ""}${body}</div>`;
 const who = p => isMem(p) ? `<b>${esc(p.name.split("#")[0])}</b>` : `<span class="anon">플레이어</span>`;
-const form = f => `<span class="dots">${f.map(w => `<span class="dot ${w ? "win" : ""}" data-tip="${w ? "승" : "패"}"></span>`).join("")}</span>`;
+const form = f => `<span class="dots" data-tip="왼쪽이 최근 경기">${f.map(x => `<span class="dot ${x.w ? "win" : ""}" data-tip="${x.w ? "승" : "패"} · ${esc(x.tip)}"></span>`).join("")}</span>`;
 const champCell = (c, ko) => `<span class="who">${champImg(c)}${esc(ko || c)}</span>`;
 
 /* ---------- 탭 ---------- */
@@ -287,7 +288,7 @@ V_.member = ms => {
   const R = memberRows(ms); if (!R.length) return `<div class="empty">멤버 데이터 없음</div>`;
   const r = R.find(x => x.name === st.member) || R[0]; st.member = r.name;
   const roleRows = {}; r.g.forEach(x => { const k = x.p.pos || ""; (roleRows[k] ??= {n:0,w:0}); roleRows[k].n++; roleRows[k].w += won(x.m, x.p); });
-  const trend = r.g.slice().reverse();
+  const trend = r.g.slice(0, 30).reverse();
   return `<div class="member-hero"><select id="msel">${R.map(x=>`<option ${x.name===r.name?"selected":""}>${esc(x.name)}</option>`).join("")}</select>
       <span class="sub">${r.n}판 · 최근 10판 ${form(r.form)}</span></div>
     <div class="grid g4">${tile("승률", pct(r.wr), `${r.w}승 ${r.n-r.w}패`)}${tile("KDA", f2(r.kda), `${f1(r.k)} / ${f1(r.d)} / ${f1(r.a)}`)}
@@ -301,8 +302,8 @@ V_.member = ms => {
     <div class="grid g2" style="margin-top:12px">
       ${card("포지션별 승률", "", hbars(Object.entries(roleRows).sort((a,b)=>b[1].n-a[1].n).map(([k,x])=>({label:`${POS[k]||k} (${x.n}판)`, v:x.w/x.n, tip:`${POS[k]||k}: ${x.w}승 ${x.n-x.w}패`})), {fmt:pct, max:1}))}
       ${card("멀티킬", "누적", hbars(["더블","트리플","쿼드라","펜타"].map((l,i)=>({label:l, v:r.multi[i]})), {fmt:x=>x}))}
-      ${card("경기별 KDA 흐름", "오래된 경기 → 최근 경기", columns([{name:"승리", color:"var(--blue)", vals:trend.map(x=>won(x.m,x.p)?+(((x.p.k+x.p.a)/Math.max(1,x.p.d)).toFixed(1)):0)}, {name:"패배", color:"var(--axis)", vals:trend.map(x=>won(x.m,x.p)?0:+(((x.p.k+x.p.a)/Math.max(1,x.p.d)).toFixed(1)))}], trend.map((x,i)=>`${i+1}. ${x.p.champKo}`)))}
-      ${card("경기별 분당 딜량", "", hbars(trend.slice(-12).reverse().map(x=>({html:`${champImg(x.p.champ,"s")} ${new Date(x.m.date).toLocaleDateString("ko",{month:"numeric",day:"numeric"})}`, label:x.p.champKo, v:x.p.dmg ? x.p.dmg/mins(x.m) : 0, color: won(x.m,x.p) ? "var(--blue)" : "var(--axis)", tip:`${x.p.champKo} · ${won(x.m,x.p)?"승":"패"} · ${x.p.k}/${x.p.d}/${x.p.a}`})), {fmt:x=>Math.round(x)}))}
+      ${card("경기별 KDA 흐름", "최근 30판 · 왼쪽이 오래된 경기", columns([{name:"승리", color:"var(--blue)", vals:trend.map(x=>won(x.m,x.p)?+(((x.p.k+x.p.a)/Math.max(1,x.p.d)).toFixed(1)):0)}, {name:"패배", color:"var(--axis)", vals:trend.map(x=>won(x.m,x.p)?0:+(((x.p.k+x.p.a)/Math.max(1,x.p.d)).toFixed(1)))}], trend.map((x,i)=>`${i+1}. ${x.p.champKo}`)))}
+      ${card("경기별 분당 딜량", "", hbars(trend.slice(-12).reverse().map(x=>({html:`${champImg(x.p.champ,"s")} ${dstr(x.m.date)}`, label:x.p.champKo, v:x.p.dmg ? x.p.dmg/mins(x.m) : 0, color: won(x.m,x.p) ? "var(--blue)" : "var(--axis)", tip:`${x.p.champKo} · ${won(x.m,x.p)?"승":"패"} · ${x.p.k}/${x.p.d}/${x.p.a}`})), {fmt:x=>Math.round(x)}))}
     </div>
     <h2 class="sec">챔피언</h2><div class="card">${champTable(r.g)}</div>`;
 };
@@ -400,11 +401,12 @@ V_.obj = ms => {
 };
 
 V_.records = ms => {
+  ms = ms.filter(m => m.dur >= 600);  // AFK 조기 항복 등 10분 미만 경기 제외
   const all = []; ms.forEach(m => m.players.forEach(p => isMem(p) && p.gold != null && all.push({m, p})));
   if (!all.length) return `<div class="empty">데이터 없음</div>`;
   const best = (f, fmt, lab, desc) => { const x = all.reduce((a, b) => f(b) > f(a) ? b : a); return {lab, desc, v: fmt(f(x)), x}; };
   const recs = [
-    best(x=>x.p.k, v=>v+"킬", "최다 킬"), best(x=>(x.p.k+x.p.a)/Math.max(1,x.p.d), f2, "최고 KDA"),
+    best(x=>x.p.k, v=>v+"킬", "최다 킬"), best(x=>(x.p.k+x.p.a)/Math.max(1,x.p.d)+(x.p.d?0:0.001), v=>f2(v), "최고 KDA", ""),
     best(x=>x.p.dmg, kfmt, "최다 딜"), best(x=>x.p.dmg/mins(x.m), v=>Math.round(v), "최고 분당 딜"),
     best(x=>x.p.cs/mins(x.m), f1, "최고 분당 CS"), best(x=>x.p.vision, v=>v, "최고 시야 점수"),
     best(x=>x.p.wp, v=>v+"개", "최다 와드"), best(x=>x.p.taken, kfmt, "최다 받은 피해"),
@@ -412,11 +414,11 @@ V_.records = ms => {
     best(x=>x.p.heal+x.p.shield, kfmt, "최다 힐·실드"), best(x=>x.p.d, v=>v+"데스", "최다 데스 (불명예)")];
   const comeback = ms.filter(m => m.gold).map(m => { const s = m.win === "blue" ? 1 : -1; return {m, def: Math.max(0, ...m.gold.map(v => -v * s))}; }).sort((a,b)=>b.def-a.def)[0];
   const longest = ms.reduce((a,b)=>b.dur>a.dur?b:a), shortest = ms.reduce((a,b)=>b.dur<a.dur?b:a);
-  const d = m => new Date(m.date).toLocaleDateString("ko",{month:"numeric",day:"numeric"});
+  const d = m => dstr(m.date);
   return `<div class="grid g4">${recs.map(r => `<div class="card tile rec"><div class="lab">${r.lab}</div><div class="val">${r.v}</div>
       <div class="note"><span class="who">${champImg(r.x.p.champ,"s")} ${who(r.x.p)}</span> · ${d(r.x.m)} · ${won(r.x.m,r.x.p)?"승":"패"}</div></div>`).join("")}
     ${tile("최장 경기", mmss(longest.dur), `${d(longest)} · ${longest.qn}`)}${tile("최단 경기", mmss(shortest.dur), `${d(shortest)} · ${shortest.qn}`)}
-    ${comeback && comeback.def > 0 ? tile("최대 역전", "-" + kfmt(comeback.def), `골드 열세를 뒤집고 승리 · ${d(comeback.m)}`) : ""}
+    ${comeback && comeback.def > 0 ? tile("최대 역전", kfmt(comeback.def) + " 열세", `골드 최대 열세에서 역전승 · ${d(comeback.m)}`) : ""}
     ${tile("펜타킬", sum(all.map(x=>x.p.multi[3])), `쿼드라 ${sum(all.map(x=>x.p.multi[2]))} · 트리플 ${sum(all.map(x=>x.p.multi[1]))}`)}</div>`;
 };
 
@@ -424,7 +426,7 @@ V_.games = ms => ms.length ? ms.map(m => {
   const me = m.players.find(isMem), w = me ? won(m, me) : null;
   const line = s => `<span class="team-line">${m.players.filter(p=>p.side===s).map(p=>`<span data-tip="${esc((p.name?p.name.split("#")[0]+" · ":"")+p.champKo+" "+p.k+"/"+p.d+"/"+p.a)}" style="${isMem(p)?"outline:2px solid var(--yellow);border-radius:5px":""}">${champImg(p.champ,"s")}</span>`).join("")}</span>`;
   return `<details class="m" data-id="${esc(m.id)}"><summary>
-    <span><b>${new Date(m.date).toLocaleDateString("ko",{month:"numeric",day:"numeric"})}</b> <span class="sub">${new Date(m.date).toLocaleTimeString("ko",{hour:"2-digit",minute:"2-digit"})}</span><br><span class="sub">${esc(m.qn)} · ${mmss(m.dur)}</span></span>
+    <span><b>${dstr(m.date)}</b> <span class="sub">${new Date(m.date).toLocaleTimeString("ko",{hour:"2-digit",minute:"2-digit"})}</span><br><span class="sub">${esc(m.qn)} · ${mmss(m.dur)}</span></span>
     ${w == null ? "<span></span>" : `<span class="res ${w?"win":"loss"}">${w?"승리":"패배"}</span>`}
     <span class="tl">${line("blue")}</span><span class="tl">${line("red")}</span>
     <span class="sub" style="text-align:right">${me ? `${champImg(me.champ,"s")} ${me.k}/${me.d}/${me.a}` : ""}</span></summary><div class="mbody"></div></details>`; }).join("") : `<div class="empty">경기 없음</div>`;

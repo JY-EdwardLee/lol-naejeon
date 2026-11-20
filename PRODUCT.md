@@ -36,10 +36,10 @@ product. We do not request custom match data for any player who has not signed i
 [ ]개 그룹 × 10명 내외. 하루 1~2회 동기화. 수백 요청/일 수준.
 
 ## Prototype / URL
-[배포 URL] — 현재 match-v5 + 수동 입력 기반 프로토타입 동작 중.
+https://jy-edwardlee.github.io/lol-naejeon/ (privacy: https://jy-edwardlee.github.io/lol-naejeon/privacy.html, terms: https://jy-edwardlee.github.io/lol-naejeon/terms.html) — 현재 match-v5 + 수동 입력 기반 프로토타입 동작 중.
 
 ## Required pages (준비 필요)
-- [ ] 공개 랜딩 페이지 (서비스 설명)
-- [ ] Privacy Policy (수집 항목, 보관 기간, 삭제 방법)
-- [ ] Terms of Service
-- [ ] Riot 법적 고지 문구: "Naejeon Tracker isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."
+- [x] 공개 랜딩 페이지 (서비스 설명)
+- [x] Privacy Policy (수집 항목, 보관 기간, 삭제 방법)
+- [x] Terms of Service
+- [x] Riot 법적 고지 문구: "Naejeon Tracker isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."

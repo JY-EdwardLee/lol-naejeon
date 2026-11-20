@@ -30,3 +30,18 @@ def match_ids(puuid, count=20, queue=None):
 
 def match(match_id):
     return get(f"/lol/match/v5/matches/{match_id}")
+
+def timeline(match_id):
+    return get(f"/lol/match/v5/matches/{match_id}/timeline")
+
+# ---- 디스크 캐시: 이미 받은 경기/타임라인은 다시 요청하지 않음 ----
+CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "cache")
+
+def cached(kind, match_id, fetch):
+    os.makedirs(CACHE, exist_ok=True)
+    p = os.path.join(CACHE, f"{match_id}.{kind}.json")
+    if os.path.exists(p):
+        return json.load(open(p))
+    v = fetch(match_id)
+    json.dump(v, open(p, "w"))
+    return v

@@ -93,3 +93,6 @@ def custom_match_ids(puuid, count=20):
 
 def match(puuid, match_id):
     return _bearer_get(f"/lol/rso-match/v1/matches/{match_id}", fresh_token(puuid))
+
+def timeline(puuid, match_id):
+    return _bearer_get(f"/lol/rso-match/v1/matches/{match_id}/timeline", fresh_token(puuid))

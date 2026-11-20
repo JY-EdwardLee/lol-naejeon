@@ -10,6 +10,24 @@ title = json.load(open(os.path.join(HERE, "group.json"))).get("title", "내전 �
 
 ps = defaultdict(lambda: {"g": 0, "w": 0, "k": 0, "d": 0, "a": 0, "champ": defaultdict(int)})
 duo = defaultdict(lambda: [0, 0])
+WL = {"YELLOW_TRINKET": "노란 장신구", "CONTROL_WARD": "제어 와드", "SIGHT_WARD": "투명 와드",
+      "BLUE_TRINKET": "파란 장신구", "UNDEFINED": "기타"}
+vs = defaultdict(lambda: {"g": 0, "tl": 0, "placed": 0, "killed": 0, "vision": 0, "early": 0, "type": defaultdict(int)})
+for m in matches:
+    memnames = {p["name"] for side in ("blue", "red") for p in m[side] if p.get("member", True)}
+    for side in ("blue", "red"):
+        for p in m[side]:
+            if p.get("member", True) and "vision" in p:
+                v = vs[p["name"]]; v["g"] += 1; v["vision"] += p["vision"]
+    if m.get("wards"):
+        for n in memnames: vs[n]["tl"] += 1
+        for w in m["wards"]:
+            if w["by"] not in memnames: continue
+            v = vs[w["by"]]
+            if w["ev"] == "placed":
+                v["placed"] += 1; v["type"][w["type"]] += 1; v["early"] += w["t"] < 14 * 60
+            else:
+                v["killed"] += 1
 for m in matches:
     for s in ("blue", "red"):
         won = m["winner"] == s
@@ -36,10 +54,32 @@ def pname(p):
     return f"<b>{e(p['name'])}</b>" if p.get("member", True) else "<span class=anon>플레이어</span>"
 def team(m, s):
     return "<br>".join(f"{pname(p)} · {e(p['champion'])} {p['k']}/{p['d']}/{p['a']}" for p in m[s])
+per = lambda x, g: f"{x/g:.1f}" if g else "-"
+vrows = "".join(
+    f"<tr><td>{e(n)}</td><td>{per(v['placed'],v['tl'])}</td><td>{per(v['type']['CONTROL_WARD'],v['tl'])}</td>"
+    f"<td>{per(v['killed'],v['tl'])}</td><td>{per(v['vision'],v['g'])}</td>"
+    f"<td>{pct(v['early'],v['placed'])}</td>"
+    f"<td>{e(', '.join(f'{WL.get(t,t)} {c}' for t,c in sorted(v['type'].items(), key=lambda t:-t[1])))}</td></tr>"
+    for n, v in sorted(vs.items(), key=lambda t: -(t[1]['placed']/max(t[1]['tl'],1))) if v["tl"])
+def mmss(t): return f"{t//60}:{t%60:02d}"
+def wardlog(m):
+    if not m.get("wards"): return ""
+    mem = {p["name"] for side in ("blue", "red") for p in m[side] if p.get("member", True)}
+    champ = {p["name"]: p["champion"] for side in ("blue", "red") for p in m[side]}
+    li = "".join(
+        f"<tr class={w['team']}><td>{mmss(w['t'])}</td><td>{'블루' if w['team']=='blue' else '레드'}</td>"
+        f"<td>{('<b>'+e(w['by'])+'</b>') if w['by'] in mem else '<span class=anon>플레이어</span>'} <small>{e(champ.get(w['by'],''))}</small></td>"
+        f"<td>{'설치' if w['ev']=='placed' else '<b>제거</b>'}</td><td>{e(WL.get(w['type'],w['type']))}</td></tr>"
+        for w in m["wards"])
+    np_ = {t: sum(w["ev"]=="placed" and w["team"]==t for w in m["wards"]) for t in ("blue","red")}
+    nk_ = {t: sum(w["ev"]=="killed" and w["team"]==t for w in m["wards"]) for t in ("blue","red")}
+    return (f"<details><summary>와드 기록 · 블루 설치 {np_['blue']}/제거 {nk_['blue']} · 레드 설치 {np_['red']}/제거 {nk_['red']}</summary>"
+            f"<table class=wl><tr><th>시간</th><th>팀</th><th>누가</th><th></th><th>종류</th></tr>{li}</table></details>")
 recent = "".join(
     f"<tr><td>{datetime.datetime.fromtimestamp(m['date']/1000):%m-%d %H:%M}<br><small>{e(m['source'])}</small></td>"
     f"<td class='{'win' if m['winner']=='blue' else ''}'>{team(m,'blue')}</td>"
     f"<td class='{'win' if m['winner']=='red' else ''}'>{team(m,'red')}</td></tr>"
+    + (f"<tr><td></td><td colspan=2>{wardlog(m)}</td></tr>" if m.get("wards") else "")
     for m in sorted(matches, key=lambda m: -m["date"])[:30])
 
 APP = "Naejeon Tracker"
@@ -53,6 +93,8 @@ body{background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,sans-serif
 a{color:var(--acc)}nav{margin-bottom:16px}footer{margin-top:40px;border-top:1px solid var(--line);color:var(--mute);font-size:12px}
 table{border-collapse:collapse;width:100%;margin:8px 0 24px}td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 th{color:var(--mute);font-weight:500}.win{background:var(--win)}small,.anon{color:var(--mute)}.wrap{overflow-x:auto}
+details{margin:4px 0 8px}summary{cursor:pointer;color:var(--mute)}.wl td{padding:2px 8px;border:0}
+.wl tr.blue td:nth-child(2){color:#2563eb}.wl tr.red td:nth-child(2){color:#dc2626}
 .btn{display:inline-block;padding:10px 16px;border-radius:8px;background:var(--acc);color:#fff;text-decoration:none}"""
 def shell(t, body):
     return (f'<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -63,6 +105,8 @@ TODAY = f"{datetime.date.today():%Y-%m-%d}"
 stats = f"""<h1>{e(title)}</h1><p><small>경기 {len(matches)}건 · 갱신 {datetime.datetime.now():%Y-%m-%d %H:%M}</small></p>
 <h2>멤버 순위</h2><div class=wrap><table><tr><th>멤버</th><th>판수</th><th>전적</th><th>승률</th><th>KDA</th><th>모스트</th></tr>{rows}</table></div>
 <h2>같은 팀 조합</h2><div class=wrap><table><tr><th>조합</th><th>판수</th><th>승률</th></tr>{duos or '<tr><td colspan=3>데이터 없음</td></tr>'}</table></div>
+<h2>와드 · 시야</h2><p><small>판당 평균. 와드 수는 Riot 타임라인 기준이며, 위치와 '어느 와드가 지워졌는지'는 API에 없어 표시하지 않습니다.</small></p>
+<div class=wrap><table><tr><th>멤버</th><th>설치</th><th>제어 와드</th><th>제거</th><th>시야 점수</th><th>14분 전 설치</th><th>종류별 (누적)</th></tr>{vrows or '<tr><td colspan=7>데이터 없음</td></tr>'}</table></div>
 <h2>최근 경기</h2><div class=wrap><table><tr><th>일시</th><th>블루</th><th>레드</th></tr>{recent}</table></div>"""
 
 landing = f"""<h1>{APP}</h1>

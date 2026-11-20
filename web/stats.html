@@ -269,7 +269,7 @@ const V_ = {};
 V_.overview = ms => {
   const R = memberRows(ms), det = ms.filter(m => m.teams);
   const blueW = det.filter(m => m.win === "blue").length;
-  return `<div class="grid g4">${tile("경기", ms.length, `${new Set(ms.map(m=>m.qn)).size}개 큐`)}${tile("멤버", R.length, "로그인·동의한 플레이어")}
+  return `<div class="grid g4">${tile("경기", ms.length, `${new Set(ms.map(m=>m.qn)).size}개 큐`)}${tile("멤버", R.length, "이름 공개에 동의한 멤버")}
     ${tile("평균 경기 시간", ms.length ? mmss(avg(ms.map(m=>m.dur))) : "-", "")}${tile("블루 진영 승률", det.length ? pct(blueW/det.length) : "-", `${det.length}판 중 ${blueW}승`)}</div>
     <h2 class="sec">멤버 순위</h2><div class="card">${table([
       {k:"name",h:"멤버",l:1,f:r=>`<b>${esc(r.name.split("#")[0])}</b> <span class="sub">#${esc(r.name.split("#")[1]||"")}</span>`},

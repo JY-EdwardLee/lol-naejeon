@@ -153,11 +153,19 @@ for fn, t, b in [("index.html", APP, landing), ("privacy.html", "개인정보처
     open(os.path.join(out, fn), "w").write(shell(t, b))
 
 # 전적 페이지: web/stats.html 템플릿 + 데이터 인라인 (file:// 로 열어도 동작)
+# docs/stats.html  = 공개용: group.json 의 consented(동의자)만 이름 표시
+# local/stats.html = 로컬 전용(.gitignore): 모든 멤버 이름 표시
 import stats_data
-site = stats_data.build(matches)
-js = json.dumps(site, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-tpl = open(os.path.join(HERE, "web", "stats.html")).read()
-for k, v in {"__TITLE__": e(title), "__APP__": APP, "__UPDATED__": f"{datetime.datetime.now():%Y-%m-%d %H:%M}"}.items():
-    tpl = tpl.replace(k, v)
-open(os.path.join(out, "stats.html"), "w").write(tpl.replace("__DATA__", js))
-print(f"docs/ ({len(ps)} members, {len(matches)} matches)")
+cfg_ = json.load(open(os.path.join(HERE, "group.json")))
+tpl0 = open(os.path.join(HERE, "web", "stats.html")).read()
+def write_stats(path, public):
+    site = stats_data.build(matches, public)
+    js = json.dumps(site, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    tpl = tpl0
+    for k, v in {"__TITLE__": e(title), "__APP__": APP, "__UPDATED__": f"{datetime.datetime.now():%Y-%m-%d %H:%M}"}.items():
+        tpl = tpl.replace(k, v)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").write(tpl.replace("__DATA__", js))
+write_stats(os.path.join(out, "stats.html"), set(cfg_.get("consented", [])))
+write_stats(os.path.join(HERE, "local", "stats.html"), None)
+print("local/stats.html (전체 멤버, 비공개)")

@@ -36,7 +36,9 @@ def _load(mid, kind):
     p = os.path.join(CACHE, f"{mid}.{kind}.json")
     return json.load(open(p)) if os.path.exists(p) else None
 
-def build(matches):
+def build(matches, public=None):
+    """public: 이름을 공개해도 되는 Riot ID 집합(동의자). None 이면 모든 멤버 이름 표시(로컬 전용)."""
+    show = (lambda n: n is not None and (public is None or n in public))
     dd = ddragon()
     ck = lambda n: dd["champ"].get((n or "").lower(), {"id": n, "n": n})
     out = []
@@ -44,7 +46,7 @@ def build(matches):
         raw, tl = _load(nm["id"], "match"), _load(nm["id"], "timeline")
         side_of = {}
         if not raw:  # 수동 입력 경기: 있는 것만
-            ps = [{"name": p["name"] if p.get("member", True) else None, "side": s, "champ": ck(p["champion"])["id"],
+            ps = [{"name": p["name"] if p.get("member", True) and show(p["name"]) else None, "side": s, "champ": ck(p["champion"])["id"],
                    "champKo": ck(p["champion"])["n"], "k": p["k"], "d": p["d"], "a": p["a"]}
                   for s in ("blue", "red") for p in nm[s]]
             out.append({"id": nm["id"], "src": nm["source"], "q": 0, "qn": "내전", "date": nm["date"], "dur": nm.get("duration", 0),
@@ -58,7 +60,7 @@ def build(matches):
             n = next(norm[s]); ch = p.get("challenges", {})
             prim = p["perks"]["styles"][0]; sub = p["perks"]["styles"][1]
             ps.append({
-                "name": n["name"] if n.get("member") else None, "side": s, "pid": p["participantId"],
+                "name": n["name"] if n.get("member") and show(n["name"]) else None, "side": s, "pid": p["participantId"],
                 "champ": ck(p["championName"])["id"], "champKo": ck(p["championName"])["n"],
                 "pos": p.get("teamPosition") or p.get("individualPosition") or "",
                 "k": p["kills"], "d": p["deaths"], "a": p["assists"], "lvl": p["champLevel"],
@@ -96,8 +98,9 @@ def build(matches):
             idx = lambda pid: side_of.get(pid, -1)
             m["gold"] = [sum(f["participantFrames"][str(p["pid"])]["totalGold"] * (1 if p["side"] == "blue" else -1) for p in ps) for f in fr]
             # 분 단위 위치 · 골드 · CS · XP (플레이어 순서와 동일)
+            # 동선은 멤버(동의자)만 — 용량 절약 + 비동의자 위치 비공개
             m["track"] = [[[f["participantFrames"][str(p["pid"])]["position"]["x"] // 10, f["participantFrames"][str(p["pid"])]["position"]["y"] // 10]
-                           for f in fr] for p in ps]
+                           for f in fr] if p["name"] else None for p in ps]
             for i, p in enumerate(ps):
                 pf = [f["participantFrames"][str(p["pid"])] for f in fr]
                 p["g10"] = pf[10]["totalGold"] if len(pf) > 10 else None

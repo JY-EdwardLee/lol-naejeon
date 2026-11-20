@@ -33,7 +33,7 @@ product. We do not request custom match data for any player who has not signed i
 - lol-rso-match-v1 /matches/ids, /matches/{matchId} (custom matches, after RSO approval)
 
 ## Expected traffic
-Launch: 1 group (~10 players). Target within 6 months: ~50 groups / ~500 opted-in players.
+Growth plan (opted-in players): launch ~10 (1 group) → ~50 within 3 months (~5 groups) → ~500 within 6 months (~50 groups).
 Each player sync = 1 match-id list call + ~3–5 new matches (detail + timeline) ≈ 10 requests; synced 1–2×/day.
 Estimated load: ~5,000–10,000 requests/day at target, peaks well under 1 request/second. Responses are cached; already-fetched matches are never re-requested.
 

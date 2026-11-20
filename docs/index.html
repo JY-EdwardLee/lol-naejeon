@@ -1,0 +1,19 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Naejeon Tracker</title><style>:root{--bg:#fff;--fg:#1a1a1a;--mute:#666;--line:#e5e5e5;--win:#e8f3ff;--acc:#2563eb}
+@media (prefers-color-scheme:dark){:root{--bg:#141414;--fg:#eee;--mute:#999;--line:#2a2a2a;--win:#14283d;--acc:#60a5fa}}
+body{background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,sans-serif;max-width:900px;margin:0 auto;padding:16px}
+a{color:var(--acc)}nav{margin-bottom:16px}footer{margin-top:40px;border-top:1px solid var(--line);color:var(--mute);font-size:12px}
+table{border-collapse:collapse;width:100%;margin:8px 0 24px}td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:500}.win{background:var(--win)}small,.anon{color:var(--mute)}.wrap{overflow-x:auto}
+.btn{display:inline-block;padding:10px 16px;border-radius:8px;background:var(--acc);color:#fff;text-decoration:none}</style><nav><a href="index.html">소개</a> · <a href="stats.html">전적</a> · <a href="privacy.html">개인정보처리방침</a> · <a href="terms.html">이용약관</a></nav><h1>Naejeon Tracker</h1>
+<p><b>친구들끼리 하는 롤 내전(사용자 설정 게임) 전적과 승률을 자동으로 정리해 주는 서비스입니다.</b><br>
+<small>A stats tracker for League of Legends custom games played within a private group of friends.</small></p>
+<h2>어떻게 동작하나요</h2><ol>
+<li>그룹 멤버가 <b>Riot 계정으로 로그인(RSO)</b>해 자신의 사용자 설정 게임 전적 공유에 동의합니다.</li>
+<li>동의한 멤버의 내전 기록을 Riot API(<code>lol-rso-match-v1</code>)로 가져옵니다.</li>
+<li>멤버별 승률·KDA·모스트 챔피언, 같은 팀 조합 승률, 최근 경기를 보여줍니다.</li></ol>
+<p>로그인(동의)하지 않은 플레이어의 이름과 개인 전적은 표시하지 않습니다. 동의는 언제든 철회할 수 있습니다.</p>
+<p><a class=btn href="stats.html">전적 보기 (데모)</a> &nbsp; <span class=anon>Riot 계정 로그인: 준비 중</span></p>
+<h2>How it works (EN)</h2><ul>
+<li>Members sign in with Riot Sign On and opt in to sharing their custom match history with their group.</li>
+<li>We fetch opted-in members' custom matches via <code>lol-rso-match-v1</code> and show win rates, KDA, champion picks and duo win rates.</li>
+<li>Players who have not opted in are never shown by name. No MMR/ELO or skill rating is calculated.</li></ul><footer><p>Naejeon Tracker isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p></footer></html>
